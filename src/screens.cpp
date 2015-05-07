@@ -118,7 +118,7 @@ void KeygenScreen::setup() {
 void KeygenScreen::update()
 {
 	//lets scale the vol up to a 0-1 range
-	getSharedData().scaledVol = ofMap(getSharedData().smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
+	getSharedData().scaledVol = ofMap(getSharedData().smoothedVol, 0.0, 0.3, 0.0, 1.0, true);
 
 	//lets record the volume into an array
 	getSharedData().volHistory.push_back( getSharedData().scaledVol );
@@ -134,7 +134,6 @@ void KeygenScreen::draw()
     ofBackgroundGradient(ofColor::grey, ofColor::black);
 
 	ofSetColor(225);
-	ofDrawBitmapString("AUDIO INPUT EXAMPLE", 32, 32);
 	ofDrawBitmapString("press 's' to unpause the audio\n'e' to pause the audio", 31, 92);
 
 	ofNoFill();
@@ -196,7 +195,7 @@ void KeygenScreen::draw()
 
 		ofSetColor(245, 58, 135);
 		ofFill();
-		ofCircle(200, 200, getSharedData().scaledVol * 190.0f);
+		ofCircle(200, 200, getSharedData().scaledVol * 120.0f);
 
 		//lets draw the volume history as a graph
 		ofBeginShape();

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
@@ -30,6 +30,12 @@
 		<Unit filename="config.make">
 			<Option virtualFolder="build config" />
 		</Unit>
+		<Unit filename="src/SharedData.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/entropy.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
 		<Unit filename="src/main.cpp">
 			<Option virtualFolder="src/" />
 		</Unit>
@@ -37,6 +43,18 @@
 			<Option virtualFolder="src/" />
 		</Unit>
 		<Unit filename="src/ofApp.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/randpool.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/randpool.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/screens.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/screens.h">
 			<Option virtualFolder="src/" />
 		</Unit>
 		<Extensions>
