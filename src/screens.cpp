@@ -2,6 +2,7 @@
 #include "screens.h"
 
 void StartScreen::stateEnter() {
+    getSharedData().currentState = this->getName();
 }
 
 void StartScreen::stateExit() {
@@ -42,6 +43,7 @@ string StartScreen::getName()
 
 // ///////////////////////////////////////////////////////////////////////////
 void PatientScreen::stateEnter() {
+    getSharedData().currentState = this->getName();
     gui->setVisible(true);
 }
 
@@ -105,6 +107,7 @@ string PatientScreen::getName()
 
 // ///////////////////////////////////////////////////////////////////////////
 void KeygenScreen::stateEnter() {
+    getSharedData().currentState = this->getName();
 }
 
 void KeygenScreen::stateExit() {

@@ -4,6 +4,7 @@
 
 #include "ofxUI.h"
 #include "ofxStateMachine.h"
+#include "ofxOsc.h"
 #include "SharedData.h"
 #include "screens.h"
 #include "randpool.h"
@@ -16,6 +17,8 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+
+        void oscLoop();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -30,6 +33,7 @@ class ofApp : public ofBaseApp{
         void audioIn(float * input, int bufferSize, int nChannels);
 
         ofSoundStream soundStream;
+		ofxOscReceiver oscr;
 
     private:
         itg::ofxStateMachine<SharedData> state;

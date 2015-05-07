@@ -17,4 +17,5 @@ public:
     float smoothedVol;
     float scaledVol;
 
+    string currentState;
 };

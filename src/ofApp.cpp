@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+#define LISTEN_OSC_PORT 12345
+
 using namespace randpool;
 
 //--------------------------------------------------------------
@@ -11,6 +13,10 @@ void ofApp::setup(){
 
     ofLogVerbose() << "Poolsize: " << getEntropyPoolSize();
     ofLogVerbose() << "Entropy available: " << getEntropyPoolAvailable();
+
+	// OSC listen on the given port
+	ofLogNotice() << "OSC: listening for osc messages on port " << LISTEN_OSC_PORT << "\n";
+	oscr.setup(LISTEN_OSC_PORT);
 
     // state machine
 	state.getSharedData().counter = 0;
@@ -50,6 +56,26 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    oscLoop();
+}
+
+void ofApp::oscLoop() {
+
+	while(oscr.hasWaitingMessages()){
+		ofxOscMessage m;
+		oscr.getNextMessage(&m);
+
+		if(m.getAddress() == "/k2h/thumbdrive"){
+            ofLogVerbose() << "Thumbdrive detected";
+			string action = m.getArgAsString(0);
+			if(action == "add" && state.getSharedData().currentState == "scnStart") {
+                ofLogVerbose() << "Changing state";
+                state.changeState("scnPatient");
+			}
+		}
+		else if(m.getAddress() == "/mouse/button"){
+		}
+	} // while
 }
 
 //--------------------------------------------------------------
