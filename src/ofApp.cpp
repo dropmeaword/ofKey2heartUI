@@ -1,10 +1,16 @@
 #include "ofApp.h"
 
+using namespace randpool;
+
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofSetLogLevel(OF_LOG_VERBOSE);
 
 	ofSetVerticalSync(true);
 	ofBackground(54, 54, 54);
+
+    ofLogVerbose() << "Poolsize: " << getEntropyPoolSize();
+    ofLogVerbose() << "Entropy available: " << getEntropyPoolAvailable();
 
     // state machine
 	state.getSharedData().counter = 0;

@@ -6,6 +6,8 @@
 #include "ofxStateMachine.h"
 #include "SharedData.h"
 #include "screens.h"
+#include "randpool.h"
+
 
 class ofApp : public ofBaseApp{
 
@@ -33,3 +35,8 @@ class ofApp : public ofBaseApp{
         itg::ofxStateMachine<SharedData> state;
 };
 
+
+namespace randpool {
+    int getEntropyPoolAvailable();
+    int getEntropyPoolSize();
+};
