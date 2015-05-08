@@ -5,6 +5,8 @@
 #include "ofMain.h"
 #include "ofxUI.h"
 
+#include "shell.h"
+
 class StartScreen : public itg::ofxState<SharedData>
 {
 public:
@@ -30,6 +32,8 @@ public:
     void keyPressed(int key);
 	string getName();
 
+    ThreadBookshelf installerBookshelf;
+
     ofxUICanvas *gui;
     void guiEvent(ofxUIEventArgs &e);
 };
@@ -39,7 +43,13 @@ class KeygenScreen : public itg::ofxState<SharedData>
     float entropyAvailable;
     vector <float> entropyHistory;
 
+    long entered;
+    bool wasKeyGenerated;
+
 public:
+
+    void gpgKeyGenerate();
+
     void stateEnter();
 	void stateExit();
     void setup();

@@ -1,6 +1,21 @@
 #include "screens.h"
 #include "randpool.h"
 
+#include <Poco/Process.h>
+#include <Poco/Pipe.h>
+#include <Poco/PipeStream.h>
+#include <Poco/StreamCopier.h>
+
+#include <sstream>
+
+using namespace Poco;
+using Poco::Process;
+using Poco::Pipe;
+using Poco::PipeInputStream;
+using Poco::PipeOutputStream;
+using Poco::ProcessHandle;
+using Poco::StreamCopier;
+
 void StartScreen::stateEnter() {
     getSharedData().currentState = this->getName();
 }
@@ -57,6 +72,8 @@ string StartScreen::getName()
 void PatientScreen::stateEnter() {
     getSharedData().currentState = this->getName();
     gui->setVisible(true);
+
+    installerBookshelf.start();
 }
 
 void PatientScreen::stateExit() {
@@ -156,6 +173,8 @@ string PatientScreen::getName()
 
 // ///////////////////////////////////////////////////////////////////////////
 void KeygenScreen::stateEnter() {
+    wasKeyGenerated = false;
+    entered = ofGetElapsedTimeMillis();
     getSharedData().currentState = this->getName();
 }
 
@@ -167,8 +186,31 @@ void KeygenScreen::setup() {
 	ofSetCircleResolution(80);
 }
 
+void KeygenScreen::gpgKeyGenerate() {
+    std::string cmd("oftest");
+    std::vector<std::string> args;
+    args.push_back("-ax");
+    Poco::Pipe outPipe;
+    ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
+    Poco::PipeInputStream istr(outPipe);
+    //ph.wait();
+
+    stringstream out;
+
+    Poco::StreamCopier::copyStream(istr, out);
+
+    ofLogVerbose() << "output of command: " << out.str();
+
+    wasKeyGenerated = true;
+}
+
 void KeygenScreen::update()
 {
+	if ( (ofGetElapsedTimeMillis() - entered > 5000) && (!wasKeyGenerated) )
+	{
+	    this->gpgKeyGenerate();
+	}
+
     entropyAvailable = 1.0 * randpool::getEntropyPoolAvailable();
     entropyAvailable = ofMap(entropyAvailable, .0, getSharedData().randomPoolSize, .0, 1.0, true);
 
