@@ -15,10 +15,9 @@ using Poco::PipeOutputStream;
 using Poco::ProcessHandle;
 using Poco::StreamCopier;
 
-class ThreadBookshelf : public ofThread
-{
+class ThreadShellExec : public ofThread {
 public:
-    ThreadBookshelf(): done(false)
+    ThreadShellExec(): done(false)
     {
     }
 
@@ -27,25 +26,14 @@ public:
         startThread();
     }
 
+    virtual int shellExec() {
+    }
+
     void threadedFunction()
     {
         if(lock())
         {
-            // install the bookshelf
-            std::string cmd("k2hcopybookshelf");
-            std::vector<std::string> args;
-            Poco::Pipe outPipe;
-            ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
-            Poco::PipeInputStream istr(outPipe);
-            //ph.wait();
-
-            stringstream out;
-
-            Poco::StreamCopier::copyStream(istr, out);
-
-            ofLogVerbose() << "command [installbookshelf]: " << out.str();
-
-            done = true;
+            shellExec();
 
             unlock();
             stopThread();
@@ -73,5 +61,34 @@ protected:
     // illustration, we use an int.  This int could represent ANY complex data
     // type that needs to be protected.
     bool done;
+};
+
+class ThreadBookshelf : public ThreadShellExec
+{
+public:
+    ThreadBookshelf()
+    {
+    }
+
+    virtual int shellExec() {
+        // install the bookshelf
+        std::string cmd("k2hcopybookshelf");
+        std::vector<std::string> args;
+        Poco::Pipe outPipe;
+        ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
+        Poco::PipeInputStream istr(outPipe);
+        //ph.wait();
+
+        stringstream out;
+
+        Poco::StreamCopier::copyStream(istr, out);
+
+        ofLogVerbose() << "command [installbookshelf]: " << out.str();
+
+        int rc = ph.wait();
+        done = true;
+
+        return rc;
+    }
 };
 
