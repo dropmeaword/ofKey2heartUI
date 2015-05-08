@@ -14,6 +14,7 @@ public:
 	void update();
 	void draw();
 	void mousePressed(int x, int y, int button);
+    void keyPressed(int key);
 	string getName();
 };
 
@@ -26,6 +27,7 @@ public:
 	void update();
 	void draw();
 	void mousePressed(int x, int y, int button);
+    void keyPressed(int key);
 	string getName();
 
     ofxUICanvas *gui;
@@ -34,6 +36,9 @@ public:
 
 class KeygenScreen : public itg::ofxState<SharedData>
 {
+    float entropyAvailable;
+    vector <float> entropyHistory;
+
 public:
     void stateEnter();
 	void stateExit();
@@ -41,5 +46,6 @@ public:
 	void update();
 	void draw();
 	void mousePressed(int x, int y, int button);
+    void keyPressed(int key);
 	string getName();
 };

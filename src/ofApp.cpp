@@ -11,7 +11,9 @@ void ofApp::setup(){
 	ofSetVerticalSync(true);
 	ofBackground(54, 54, 54);
 
-    ofLogVerbose() << "Poolsize: " << getEntropyPoolSize();
+	state.getSharedData().randomPoolSize = getEntropyPoolSize();
+
+    ofLogVerbose() << "Poolsize: " << state.getSharedData().randomPoolSize;
     ofLogVerbose() << "Entropy available: " << getEntropyPoolAvailable();
 
 	// OSC listen on the given port
@@ -60,7 +62,6 @@ void ofApp::update(){
 }
 
 void ofApp::oscLoop() {
-
 	while(oscr.hasWaitingMessages()){
 		ofxOscMessage m;
 		oscr.getNextMessage(&m);
@@ -73,8 +74,6 @@ void ofApp::oscLoop() {
                 state.changeState("scnPatient");
 			}
 		}
-		else if(m.getAddress() == "/mouse/button"){
-		}
 	} // while
 }
 
@@ -86,7 +85,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
-    if( key == 'f') {
+    if( key == OF_KEY_F1) {
         ofToggleFullscreen();
     }
 /*

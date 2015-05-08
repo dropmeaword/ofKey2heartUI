@@ -1,5 +1,5 @@
-
 #include "screens.h"
+#include "randpool.h"
 
 void StartScreen::stateEnter() {
     getSharedData().currentState = this->getName();
@@ -32,7 +32,19 @@ void StartScreen::draw()
 
 void StartScreen::mousePressed(int x, int y, int button)
 {
-	changeState("scnPatient");
+}
+
+void StartScreen::keyPressed(int key) {
+    switch(key) {
+        case OF_KEY_RIGHT:
+            changeState("scnPatient");
+            break;
+        case OF_KEY_LEFT:
+            changeState("scnStart");
+            break;
+        default:
+            break;
+    }
 }
 
 string StartScreen::getName()
@@ -53,11 +65,16 @@ void PatientScreen::stateExit() {
 
 void PatientScreen::setup() {
     // setup UI
-    gui = new ofxUICanvas();
+    gui = new ofxUICanvas((ofGetScreenWidth()/2)-200, ofGetScreenHeight()/2, 400, 400);
 
-    gui->addLabel("OFXUI TUTORIAL", OFX_UI_FONT_LARGE);
-    gui->addSlider("BACKGROUND",0.0,255.0,100.0);
-    gui->addToggle("FULLSCREEN", false);
+    gui->addLabel("CREATE IDENTITY", OFX_UI_FONT_LARGE);
+    gui->addSpacer(8);
+    gui->addLabel("ENTER NAME", OFX_UI_FONT_SMALL);
+    gui->addTextInput("TXT_NAME", "");
+    gui->addLabel("ENTER EMAIL", OFX_UI_FONT_SMALL);
+    gui->addTextInput("TXT_EMAIL", "");
+    gui->addSpacer(8);
+    gui->addLabelButton("Create", false);
     gui->autoSizeToFitWidgets();
     gui->setVisible(false);
     ofAddListener(gui->newGUIEvent, this, &PatientScreen::guiEvent);
@@ -74,29 +91,61 @@ void PatientScreen::update()
 
 void PatientScreen::draw()
 {
-    ofBackgroundGradient(ofColor::grey, ofColor::black);
+    ofBackground(30, 30, 60);
 	ofSetColor(255, 255, 255);
-	getSharedData().font.drawString(ofToString(getSharedData().counter), ofGetWidth() >> 1, ofGetHeight() >> 1);
+	//getSharedData().font.drawString(ofToString(getSharedData().counter), ofGetWidth() >> 1, ofGetHeight() >> 1);
 }
 
 void PatientScreen::guiEvent(ofxUIEventArgs &e)
 {
-    if(e.getName() == "BACKGROUND")
+	string name = e.widget->getName();
+	int kind = e.widget->getKind();
+
+    ofLogVerbose() <<  "GUI element: " << name;
+
+	if(kind == OFX_UI_WIDGET_LABELBUTTON)
     {
-        ofxUISlider *slider = e.getSlider();
-        ofBackground(slider->getScaledValue());
+        ofxUILabelButton *button = (ofxUILabelButton *) e.widget;
+        ofLogVerbose() << name << "\t value: " << button->getValue() << endl;
     }
-    else if(e.getName() == "FULLSCREEN")
+/*
+    else if(name == "TEXT INPUT")
     {
-        ofxUIToggle *toggle = (ofxUIToggle *) e.widget;
-        ofSetFullscreen(toggle->getValue());
+        ofxUITextInput *ti = (ofxUITextInput *) e.widget;
+        if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
+        {
+            cout << "ON ENTER: ";
+        }
+        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
+        {
+            cout << "ON FOCUS: ";
+        }
+        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
+        {
+            cout << "ON BLUR: ";
+        }
+        string output = ti->getTextString();
+        cout << output << endl;
     }
+*/
 }
 
 
 void PatientScreen::mousePressed(int x, int y, int button)
 {
-	changeState("scnKeygen");
+}
+
+void PatientScreen::keyPressed(int key) {
+    switch(key) {
+        case OF_KEY_RIGHT:
+            changeState("scnKeygen");
+            break;
+        case OF_KEY_LEFT:
+            changeState("scnStart");
+            break;
+        default:
+            break;
+    }
 }
 
 string PatientScreen::getName()
@@ -120,6 +169,14 @@ void KeygenScreen::setup() {
 
 void KeygenScreen::update()
 {
+    entropyAvailable = 1.0 * randpool::getEntropyPoolAvailable();
+    entropyAvailable = ofMap(entropyAvailable, .0, getSharedData().randomPoolSize, .0, 1.0, true);
+
+	entropyHistory.push_back( entropyAvailable );
+	if( entropyHistory.size() >= 400 ){
+		entropyHistory.erase(entropyHistory.begin(), entropyHistory.begin()+1);
+	}
+
 	//lets scale the vol up to a 0-1 range
 	getSharedData().scaledVol = ofMap(getSharedData().smoothedVol, 0.0, 0.3, 0.0, 1.0, true);
 
@@ -137,7 +194,6 @@ void KeygenScreen::draw()
     ofBackgroundGradient(ofColor::grey, ofColor::black);
 
 	ofSetColor(225);
-	ofDrawBitmapString("press 's' to unpause the audio\n'e' to pause the audio", 31, 92);
 
 	ofNoFill();
 
@@ -147,7 +203,7 @@ void KeygenScreen::draw()
 		ofTranslate(32, 170, 0);
 
 		ofSetColor(225);
-		ofDrawBitmapString("Left Channel", 4, 18);
+		ofDrawBitmapString("Heartbeat", 4, 18);
 
 		ofSetLineWidth(1);
 		ofRect(0, 0, 512, 200);
@@ -170,7 +226,7 @@ void KeygenScreen::draw()
 		ofTranslate(32, 370, 0);
 
 		ofSetColor(225);
-		ofDrawBitmapString("Right Channel", 4, 18);
+		ofDrawBitmapString("Random pool", 4, 18);
 
 		ofSetLineWidth(1);
 		ofRect(0, 0, 512, 200);
@@ -193,8 +249,8 @@ void KeygenScreen::draw()
 		ofTranslate(565, 170, 0);
 
 		ofSetColor(225);
-		ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(getSharedData().scaledVol * 100.0, 0), 4, 18);
-		ofRect(0, 0, 400, 400);
+		//ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(getSharedData().scaledVol * 100.0, 0), 4, 18);
+		//ofRect(0, 0, 400, 400);
 
 		ofSetColor(245, 58, 135);
 		ofFill();
@@ -202,12 +258,12 @@ void KeygenScreen::draw()
 
 		//lets draw the volume history as a graph
 		ofBeginShape();
-		for (unsigned int i = 0; i < getSharedData().volHistory.size(); i++){
+		for (unsigned int i = 0; i < entropyHistory.size(); i++){
 			if( i == 0 ) ofVertex(i, 400);
 
-			ofVertex(i, 400 - getSharedData().volHistory[i] * 70);
+			ofVertex(i, 400 - entropyHistory[i] * 70);
 
-			if( i == getSharedData().volHistory.size() -1 ) ofVertex(i, 400);
+			if( i == entropyHistory.size() -1 ) ofVertex(i, 400);
 		}
 		ofEndShape(false);
 
@@ -223,7 +279,19 @@ void KeygenScreen::draw()
 
 void KeygenScreen::mousePressed(int x, int y, int button)
 {
-	changeState("scnStart");
+}
+
+void KeygenScreen::keyPressed(int key) {
+    switch(key) {
+        case OF_KEY_RIGHT:
+            changeState("scnStart");
+            break;
+        case OF_KEY_LEFT:
+            changeState("scnPatient");
+            break;
+        default:
+            break;
+    }
 }
 
 string KeygenScreen::getName()

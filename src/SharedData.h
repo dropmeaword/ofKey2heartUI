@@ -17,5 +17,7 @@ public:
     float smoothedVol;
     float scaledVol;
 
+    int randomPoolSize;
+
     string currentState;
 };
