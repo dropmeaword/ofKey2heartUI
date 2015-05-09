@@ -27,6 +27,7 @@ void ofApp::setup(){
 
 	state.addState<StartScreen>();
 	state.addState<PatientScreen>();
+	state.addState<GetReadyScreen>();
 	state.addState<KeygenScreen>();
 	state.changeState("scnStart");
 

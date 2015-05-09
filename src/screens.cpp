@@ -167,7 +167,7 @@ void PatientScreen::mousePressed(int x, int y, int button)
 void PatientScreen::keyPressed(int key) {
     switch(key) {
         case OF_KEY_RIGHT:
-            changeState("scnKeygen");
+            changeState("scnGetReady");
             break;
         case OF_KEY_LEFT:
             changeState("scnStart");
@@ -180,6 +180,53 @@ void PatientScreen::keyPressed(int key) {
 string PatientScreen::getName()
 {
 	return "scnPatient";
+}
+
+// ///////////////////////////////////////////////////////////////////////////
+void GetReadyScreen::stateEnter() {
+    getSharedData().currentState = this->getName();
+}
+
+void GetReadyScreen::stateExit() {
+}
+
+
+void GetReadyScreen::setup() {
+}
+
+void GetReadyScreen::update()
+{
+}
+
+void GetReadyScreen::draw()
+{
+    ofBackgroundGradient(ofColor::grey, ofColor::black);
+	ofSetColor(255, 255, 255);
+	string msg = "Thanks!\nPlease get ready in the identity booth...";
+	ofRectangle bbox = getSharedData().font.getStringBoundingBox(msg, 0,0);
+	getSharedData().font.drawString(msg, ((ofGetWidth() >> 1) - bbox.width/2), ((ofGetHeight() >> 1) - bbox.height/2) );
+}
+
+void GetReadyScreen::mousePressed(int x, int y, int button)
+{
+}
+
+void GetReadyScreen::keyPressed(int key) {
+    switch(key) {
+        case OF_KEY_RIGHT:
+            changeState("scnKeygen");
+            break;
+        case OF_KEY_LEFT:
+            changeState("scnPatient");
+            break;
+        default:
+            break;
+    }
+}
+
+string GetReadyScreen::getName()
+{
+	return "scnGetReady";
 }
 
 
@@ -223,13 +270,15 @@ void KeygenScreen::update()
 	    this->gpgKeyGenerate();
 	}
 
-    entropyAvailable = 1.0 * randpool::getEntropyPoolAvailable();
-    entropyAvailable = ofMap(entropyAvailable, .0, getSharedData().randomPoolSize, .0, 1.0, true);
+//    if( (ofGetElapsedTimeMillis() % 250) == 0 ) {
+        entropyAvailable = 1.0 * randpool::getEntropyPoolAvailable();
+        entropyAvailable = ofMap(entropyAvailable, .0, getSharedData().randomPoolSize, .0, 1.0, true);
 
-	entropyHistory.push_back( entropyAvailable );
-	if( entropyHistory.size() >= 400 ){
-		entropyHistory.erase(entropyHistory.begin(), entropyHistory.begin()+1);
-	}
+        entropyHistory.push_back( entropyAvailable );
+        if( entropyHistory.size() >= 510 ){
+            entropyHistory.erase(entropyHistory.begin(), entropyHistory.begin()+1);
+        }
+//    }
 
 	//lets scale the vol up to a 0-1 range
 	getSharedData().scaledVol = ofMap(getSharedData().smoothedVol, 0.0, 0.3, 0.0, 1.0, true);
@@ -251,10 +300,14 @@ void KeygenScreen::draw()
 
 	ofNoFill();
 
+    int xpos = 32;
+    int ypos = 170;
+    int gheight = 180;
+
 	// draw the left channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 170, 0);
+		ofTranslate(xpos, ypos, 0);
 
 		ofSetColor(225);
 		ofDrawBitmapString("Heartbeat", 4, 18);
@@ -267,17 +320,20 @@ void KeygenScreen::draw()
 
 			ofBeginShape();
 			for (unsigned int i = 0; i < getSharedData().left.size(); i++){
-				ofVertex(i*2, 100 -getSharedData().left[i]*180.0f);
+				ofVertex(i*2, 100 -getSharedData().left[i]*gheight);
 			}
 			ofEndShape(false);
 
 		ofPopMatrix();
 	ofPopStyle();
 
+    ypos += 250;
+    int gwidth = 200;
+
 	// draw the right channel:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(32, 370, 0);
+		ofTranslate(xpos, ypos, 0);
 
 		ofSetColor(225);
 		ofDrawBitmapString("Random pool", 4, 18);
@@ -288,19 +344,28 @@ void KeygenScreen::draw()
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
 
-			ofBeginShape();
-			for (unsigned int i = 0; i < getSharedData().right.size(); i++){
-				ofVertex(i*2, 100 -getSharedData().right[i]*180.0f);
-			}
-			ofEndShape(false);
+		//lets draw the volume history as a graph
+		float step = gwidth / entropyHistory.size();
+		float xp = 0;
+		ofBeginShape();
+		for (unsigned int i = 0; i < entropyHistory.size(); i++){
+			//if( i == 0 ) ofVertex(i, gheight);
+			ofVertex(i, 100 - entropyHistory[i] * gheight);
+			xp += step;
+			//if( i == entropyHistory.size() -1 ) ofVertex(i, gheight);
+		}
+		ofEndShape(false);
 
 		ofPopMatrix();
 	ofPopStyle();
 
+    xpos = 565;
+    ypos = 170;
+
 	// draw the average volume:
 	ofPushStyle();
 		ofPushMatrix();
-		ofTranslate(565, 170, 0);
+		ofTranslate(xpos, ypos, 0);
 
 		ofSetColor(225);
 		//ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(getSharedData().scaledVol * 100.0, 0), 4, 18);
@@ -311,15 +376,15 @@ void KeygenScreen::draw()
 		ofCircle(200, 200, getSharedData().scaledVol * 120.0f);
 
 		//lets draw the volume history as a graph
-		ofBeginShape();
-		for (unsigned int i = 0; i < entropyHistory.size(); i++){
-			if( i == 0 ) ofVertex(i, 400);
-
-			ofVertex(i, 400 - entropyHistory[i] * 70);
-
-			if( i == entropyHistory.size() -1 ) ofVertex(i, 400);
-		}
-		ofEndShape(false);
+//		ofBeginShape();
+//		for (unsigned int i = 0; i < entropyHistory.size(); i++){
+//			if( i == 0 ) ofVertex(i, 400);
+//
+//			ofVertex(i, 400 - entropyHistory[i] * 70);
+//
+//			if( i == entropyHistory.size() -1 ) ofVertex(i, 400);
+//		}
+//		ofEndShape(false);
 
 		ofPopMatrix();
 	ofPopStyle();
