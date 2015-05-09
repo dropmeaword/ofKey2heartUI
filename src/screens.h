@@ -7,6 +7,12 @@
 
 #include "shell.h"
 
+typedef struct sMessage {
+    string message;
+    long created;
+    long ttl;
+} tMessage;
+
 class StartScreen : public itg::ofxState<SharedData>
 {
 public:
@@ -34,7 +40,18 @@ public:
 
     ThreadBookshelf installerBookshelf;
 
+    int btnLastValue;
+
+    ofxUITextInput *txtName;
+    ofxUITextInput *txtEmail;
+
     ofxUICanvas *gui;
+
+    tMessage warning;
+
+    void readForm();
+    bool isFormFilled();
+
     void guiEvent(ofxUIEventArgs &e);
 };
 

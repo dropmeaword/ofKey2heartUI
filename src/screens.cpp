@@ -87,9 +87,9 @@ void PatientScreen::setup() {
     gui->addLabel("CREATE IDENTITY", OFX_UI_FONT_LARGE);
     gui->addSpacer(8);
     gui->addLabel("ENTER NAME", OFX_UI_FONT_SMALL);
-    gui->addTextInput("TXT_NAME", "");
+    txtName = gui->addTextInput("TXT_NAME", "");
     gui->addLabel("ENTER EMAIL", OFX_UI_FONT_SMALL);
-    gui->addTextInput("TXT_EMAIL", "");
+    txtEmail = gui->addTextInput("TXT_EMAIL", "");
     gui->addSpacer(8);
     gui->addLabelButton("Create", false);
     gui->autoSizeToFitWidgets();
@@ -110,7 +110,26 @@ void PatientScreen::draw()
 {
     ofBackground(30, 30, 60);
 	ofSetColor(255, 255, 255);
+
+    if(!warning.message.empty() && ((ofGetElapsedTimeMillis() - warning.created) < warning.ttl) ) {
+        ofSetColor(255, 0, 0);
+		ofDrawBitmapString(warning.message, (ofGetWidth() >> 1)-120, (ofGetScreenHeight()/2) + 200);
+    }
 	//getSharedData().font.drawString(ofToString(getSharedData().counter), ofGetWidth() >> 1, ofGetHeight() >> 1);
+}
+
+void PatientScreen::readForm() {
+    getSharedData().gpgName  = txtName->getTextString();
+    getSharedData().gpgEmail = txtEmail->getTextString();
+}
+
+bool PatientScreen::isFormFilled() {
+    readForm();
+    if(!getSharedData().gpgName.empty() && !getSharedData().gpgEmail.empty()) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void PatientScreen::guiEvent(ofxUIEventArgs &e)
@@ -123,28 +142,21 @@ void PatientScreen::guiEvent(ofxUIEventArgs &e)
 	if(kind == OFX_UI_WIDGET_LABELBUTTON)
     {
         ofxUILabelButton *button = (ofxUILabelButton *) e.widget;
-        ofLogVerbose() << name << "\t value: " << button->getValue() << endl;
+        if( (button->getValue() == 0) && (btnLastValue == 1) ) {
+            if( isFormFilled() ) {
+                ofLogVerbose() << "(i) name: " << getSharedData().gpgName << ", email: " << getSharedData().gpgEmail;
+            } else {
+                warning.message = "Form is missing something\nplease fill out in full!";
+                warning.created = ofGetElapsedTimeMillis();
+                warning.ttl = 10000;
+
+                ofLogVerbose() << "Form is missing something, please fill out in full!";
+            }
+        }
+
+        btnLastValue = button->getValue();
+        ofLogVerbose() << name << "\t value: " << btnLastValue << endl;
     }
-/*
-    else if(name == "TEXT INPUT")
-    {
-        ofxUITextInput *ti = (ofxUITextInput *) e.widget;
-        if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
-        {
-            cout << "ON ENTER: ";
-        }
-        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
-        {
-            cout << "ON FOCUS: ";
-        }
-        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
-        {
-            cout << "ON BLUR: ";
-        }
-        string output = ti->getTextString();
-        cout << output << endl;
-    }
-*/
 }
 
 

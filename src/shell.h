@@ -80,9 +80,7 @@ public:
         //ph.wait();
 
         stringstream out;
-
         Poco::StreamCopier::copyStream(istr, out);
-
         ofLogVerbose() << "command [installbookshelf]: " << out.str();
 
         int rc = ph.wait();
@@ -92,3 +90,31 @@ public:
     }
 };
 
+
+class ThreadPrint : public ThreadShellExec
+{
+public:
+    ThreadPrint()
+    {
+    }
+
+    virtual int shellExec() {
+        // install the bookshelf
+        std::string cmd("k2h");
+        std::vector<std::string> args;
+        args.push_back("-pdf /tmp/label.pdf");
+        Poco::Pipe outPipe;
+        ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
+        Poco::PipeInputStream istr(outPipe);
+        //ph.wait();
+
+        stringstream out;
+        Poco::StreamCopier::copyStream(istr, out);
+        ofLogVerbose() << "command [printlabel]: " << out.str();
+
+        int rc = ph.wait();
+        done = true;
+
+        return rc;
+    }
+};

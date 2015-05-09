@@ -11,6 +11,9 @@ public:
     vector <float> right;
     vector <float> volHistory;
 
+    string gpgName;
+    string gpgEmail;
+
     int 	bufferCounter;
     int 	drawCounter;
 
