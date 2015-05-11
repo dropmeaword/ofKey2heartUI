@@ -76,10 +76,25 @@ class KeygenScreen : public itg::ofxState<SharedData>
     long entered;
     bool wasKeyGenerated;
 
+    ThreadGenKey keygen;
+
 public:
 
     void gpgKeyGenerate();
 
+    void stateEnter();
+	void stateExit();
+    void setup();
+	void update();
+	void draw();
+	void mousePressed(int x, int y, int button);
+    void keyPressed(int key);
+	string getName();
+};
+
+class ThankyouScreen : public itg::ofxState<SharedData>
+{
+public:
     void stateEnter();
 	void stateExit();
     void setup();

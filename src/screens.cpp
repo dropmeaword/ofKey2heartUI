@@ -73,6 +73,7 @@ void PatientScreen::stateEnter() {
     getSharedData().currentState = this->getName();
     gui->setVisible(true);
 
+    ofLogNotice() << "installing bookshelf";
     installerBookshelf.start();
 }
 
@@ -246,26 +247,14 @@ void KeygenScreen::setup() {
 }
 
 void KeygenScreen::gpgKeyGenerate() {
-    std::string cmd("oftest");
-    std::vector<std::string> args;
-    args.push_back("-ax");
-    Poco::Pipe outPipe;
-    ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
-    Poco::PipeInputStream istr(outPipe);
-    //ph.wait();
-
-    stringstream out;
-
-    Poco::StreamCopier::copyStream(istr, out);
-
-    ofLogVerbose() << "output of command: " << out.str();
-
-    wasKeyGenerated = true;
+    keygen.setIdentity(getSharedData().gpgName, getSharedData().gpgEmail);
+    //ofLogNotice() << "Starting key generation";
+    keygen.start();
 }
 
 void KeygenScreen::update()
 {
-	if ( (ofGetElapsedTimeMillis() - entered > 5000) && (!wasKeyGenerated) )
+	if ( (ofGetElapsedTimeMillis() - entered > 5000) && (!keygen.isThreadRunning() && !wasKeyGenerated) )
 	{
 	    this->gpgKeyGenerate();
 	}
@@ -289,6 +278,12 @@ void KeygenScreen::update()
 	//if we are bigger the the size we want to record - lets drop the oldest value
 	if( getSharedData().volHistory.size() >= 400 ){
 		getSharedData().volHistory.erase(getSharedData().volHistory.begin(), getSharedData().volHistory.begin()+1);
+	}
+
+    // if the key generation process is completed
+	if(keygen.isDone() && !wasKeyGenerated) {
+        wasKeyGenerated = true;
+        ofLogNotice() << "key generated successfully...";
 	}
 }
 
@@ -420,3 +415,49 @@ string KeygenScreen::getName()
 
 
 
+// ////////////////////////////////////////////////////////////////////////////////
+void ThankyouScreen::stateEnter() {
+    getSharedData().currentState = this->getName();
+}
+
+void ThankyouScreen::stateExit() {
+}
+
+
+void ThankyouScreen::setup() {
+}
+
+void ThankyouScreen::update()
+{
+}
+
+void ThankyouScreen::draw()
+{
+    ofBackgroundGradient(ofColor::grey, ofColor::black);
+	ofSetColor(255, 255, 255);
+	string msg = "Thanks!\nPlease get ready in the identity booth...";
+	ofRectangle bbox = getSharedData().font.getStringBoundingBox(msg, 0,0);
+	getSharedData().font.drawString(msg, ((ofGetWidth() >> 1) - bbox.width/2), ((ofGetHeight() >> 1) - bbox.height/2) );
+}
+
+void ThankyouScreen::mousePressed(int x, int y, int button)
+{
+}
+
+void ThankyouScreen::keyPressed(int key) {
+    switch(key) {
+        case OF_KEY_RIGHT:
+            changeState("scnStart");
+            break;
+        case OF_KEY_LEFT:
+            changeState("scnKeygen");
+            break;
+        default:
+            break;
+    }
+}
+
+string ThankyouScreen::getName()
+{
+	return "scnThankyou";
+}

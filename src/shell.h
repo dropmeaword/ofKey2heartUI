@@ -31,9 +31,18 @@ public:
 
     void threadedFunction()
     {
+        done = false;
+        shellExec();
+        done = true;
+
+        stopThread();
+
+        /*
         if(lock())
         {
+            done = false;
             shellExec();
+            done = true;
 
             unlock();
             stopThread();
@@ -45,6 +54,7 @@ public:
             // Calling unlock without locking will lead to problems.
             ofLogWarning("threadedFunction()") << "Unable to lock mutex.";
         }
+        */
     }
 
     int isDone()
@@ -84,7 +94,6 @@ public:
         ofLogVerbose() << "command [installbookshelf]: " << out.str();
 
         int rc = ph.wait();
-        done = true;
 
         return rc;
     }
@@ -113,8 +122,61 @@ public:
         ofLogVerbose() << "command [printlabel]: " << out.str();
 
         int rc = ph.wait();
-        done = true;
 
         return rc;
+    }
+};
+
+
+class ThreadGenKey : public ThreadShellExec
+{
+    string _email;
+    string _name;
+
+public:
+    ThreadGenKey()
+    {
+        _name  = "unset";
+        _email = "unset";
+    }
+
+    void setIdentity(string name, string email)
+    {
+        _name  = name;
+        _email = email;
+    }
+
+    virtual int shellExec() {
+/*
+        std::string cmd("sleep");
+        std::vector<std::string> args;
+        args.push_back("10");
+        Poco::Pipe outPipe;
+        ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
+        Poco::PipeInputStream istr(outPipe);
+
+        int rc = ph.wait();
+        return 0;
+        return rc;
+*/
+
+        // install the bookshelf
+        ofLogVerbose() << "command [genkey]: name: " << _name << " email: " << _email;
+        std::string cmd("genkeys");
+        std::vector<std::string> args;
+        args.push_back("\""+_name+"\"");
+        args.push_back("\""+_email+"\"");
+        Poco::Pipe outPipe;
+        ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
+        Poco::PipeInputStream istr(outPipe);
+        //ph.wait();
+
+        stringstream out;
+        Poco::StreamCopier::copyStream(istr, out);
+        ofLogVerbose() << "command [genkey]: " << out.str();
+
+        //int rc = ph.wait();
+        return 0;
+        //return rc;
     }
 };
