@@ -24,6 +24,8 @@ public:
 	void mousePressed(int x, int y, int button);
     void keyPressed(int key);
 	string getName();
+
+	ofImage logo;
 };
 
 class PatientScreen : public itg::ofxState<SharedData>

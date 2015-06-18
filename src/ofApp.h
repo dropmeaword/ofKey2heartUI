@@ -5,9 +5,11 @@
 #include "ofxUI.h"
 #include "ofxStateMachine.h"
 #include "ofxOsc.h"
+#include "ofxWaveHandler.h"
 #include "SharedData.h"
 #include "screens.h"
 #include "randpool.h"
+#include "entropy.h"
 
 
 class ofApp : public ofBaseApp{
@@ -15,6 +17,8 @@ class ofApp : public ofBaseApp{
 	public:
 
 		void setup();
+        void exit();
+
 		void update();
 		void draw();
 
@@ -34,9 +38,14 @@ class ofApp : public ofBaseApp{
 
         ofSoundStream soundStream;
 		ofxOscReceiver oscr;
+        ofxWaveHandler* waveObject;
 
     private:
         itg::ofxStateMachine<SharedData> state;
+        //vector<unsigned char> poolfeed;
+        bool trigger;
+        unsigned char *poolfeed;
+        Randpool pool;
 };
 
 

@@ -11,17 +11,14 @@
 #include <linux/random.h>
 
 
-#define RANDOM_DEVICE				"/dev/random"
-#define DEFAULT_SAMPLE_RATE			11025
-#define PID_FILE				"/var/run/audio-entropyd.pid"
-#define DEFAULT_CLICK_READ			(1 * DEFAULT_SAMPLE_RATE)
-#define DEFAULT_POOLSIZE_FN                     "/proc/sys/kernel/random/poolsize"
-#define	RNGTEST_PENALTY				(20000 / 8) /* how many bytes to skip when the rng-test fails */
+#define DEV_RANDOM	"/dev/urandom"
 
+typedef struct {
+    int bit_count;               /* number of bits of entropy in data */
+    int byte_count;              /* number of bytes of data in array */
+    unsigned char buf[512];
+} entropy_t;
 
-#define min(x, y)       ((x)<(y)?(x):(y))
-
-#define DEV_RANDOM	"/dev/random"
 
 int fd;
 
@@ -51,24 +48,25 @@ void kernel_rng_poll()
 
 int kernel_rng_add_entropy(unsigned char *data, int n, int n_bits)
 {
-        struct rand_pool_info *output;
+    struct rand_pool_info *output;
 
-        output = (struct rand_pool_info *)malloc(sizeof(struct rand_pool_info) + n);
-        if (!output) {
-		fprintf(stderr, "malloc failure in kernel_rng_add_entropy_no_bitcount_increase(%d)\n", n);
-		return -1;
-	}
+    output = (struct rand_pool_info *)malloc(sizeof(struct rand_pool_info) + n);
+    if (!output) {
+        fprintf(stderr, "malloc failure in kernel_rng_add_entropy_no_bitcount_increase(%d)\n", n);
+        return -1;
+    }
 
-	output -> entropy_count = n_bits;
-	output -> buf_size      = n;
-	memcpy(&(output -> buf[0]), data, n);
+	output->entropy_count = n_bits;
+	output->buf_size      = n;
+	memcpy(&(output->buf[0]), data, n);
 
 	errno = 0;
-	if (ioctl(fd, RNDADDENTROPY, output) == -1)
+    //fprintf(stderr, "fd: %d\n", fd);
+	if (ioctl(fd, RNDADDENTROPY, output) == -1) {
 		fprintf(stderr, "ioctl(RNDADDENTROPY) failed: %d\n", errno);
+	}
 
 	free(output);
-
 	return errno;
 }
 

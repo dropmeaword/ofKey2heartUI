@@ -25,6 +25,7 @@ void StartScreen::stateExit() {
 
 
 void StartScreen::setup() {
+    logo.loadImage("key2myheartlogo.png");
 }
 
 void StartScreen::update()
@@ -40,9 +41,19 @@ void StartScreen::draw()
 {
     ofBackgroundGradient(ofColor::grey, ofColor::black);
 	ofSetColor(255, 255, 255);
+
+	int halfWidth = ofGetWidth() >> 1;
+	int halfHeight = ofGetHeight() >> 1;
+
+    float lw = ofMap((logo.width*.5), 0, logo.width, 0, ofGetScreenWidth());
+    float factor = (logo.width / lw);
+    float lh = logo.height / factor;
+    //ofLogNotice() << "resize factor: " << factor << ", lw: " << lw << ", lh: " << lh;
+	logo.draw(halfWidth - (lw/2), halfHeight + 150, lw, lh);
+
 	string msg = "Insert USB bracelet to begin...";
 	ofRectangle bbox = getSharedData().font.getStringBoundingBox(msg, 0,0);
-	getSharedData().font.drawString(msg, ((ofGetWidth() >> 1) - bbox.width/2), ((ofGetHeight() >> 1) - bbox.height/2) );
+	getSharedData().font.drawString(msg, (halfWidth - bbox.width/2), ( halfHeight - bbox.height/2) );
 }
 
 void StartScreen::mousePressed(int x, int y, int button)

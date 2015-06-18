@@ -8,6 +8,18 @@ using namespace randpool;
 void ofApp::setup(){
     ofSetLogLevel(OF_LOG_VERBOSE);
 
+    if( geteuid() != 0) {
+        ofLogWarning() << "(!!!)";
+        ofLogWarning() << "(!!!) PLEASE RUN THIS AS ROOT!";
+        ofLogWarning() << "(!!!) otherwise this software cannot add to the entropy pool";
+        ofLogWarning() << "(!!!)";
+    }
+
+    int res;
+    //res = kernel_rng_open();
+    pool.open("/dev/urandom");
+    ofLogVerbose() << "Opening kernel rand pool result = " << res;
+
 	ofSetVerticalSync(true);
 	ofBackground(54, 54, 54);
 
@@ -30,7 +42,8 @@ void ofApp::setup(){
 	state.addState<GetReadyScreen>();
 	state.addState<KeygenScreen>();
 	state.addState<ThankyouScreen>();
-	state.changeState("scnKeygen");
+	state.changeState("scnStart");
+	//state.changeState("scnKeygen");
 
     // AUDIO INPUT
 
@@ -55,7 +68,19 @@ void ofApp::setup(){
 	state.getSharedData().smoothedVol     = 0.0;
 	state.getSharedData().scaledVol		= 0.0;
 
-	soundStream.setup(this, 0, 2, 44100, bufferSize, 4);
+    trigger = false;
+    poolfeed = new unsigned char[512];
+    //poolfeed.resize(bufferSize*2);
+    //poolfeed = new unsigned char[bufferSize*4];  // times number of channels
+
+	int ret = soundStream.setup(this, 0, 2, 44100, bufferSize, 4);
+    ofLogVerbose() << "soundStream.setup: " << ret;
+}
+
+void ofApp::exit() {
+    ofLogVerbose() << "Closing kernel RNG";
+    //kernel_rng_close();
+    pool.close();
 }
 
 //--------------------------------------------------------------
@@ -106,18 +131,44 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 
 	float curVol = 0.0;
 
+    // bufferSize 256, nChannels 2
+    //ofLogVerbose() << "audioIn, bufferSize: " << bufferSize << " nChannels " << nChannels;
+
 	// samples are "interleaved"
 	int numCounted = 0;
 
+    //kernel_rng_add_entropy();
+
+    int bcount = 0;
 	//lets go through each sample and calculate the root mean square which is a rough way to calculate volume
 	for (int i = 0; i < bufferSize; i++){
-		state.getSharedData().left[i]		= input[i*2]*0.5;
+		state.getSharedData().left[i]   = input[i*2]*0.5;
 		state.getSharedData().right[i]	= input[i*2+1]*0.5;
+
+        // convert to bytes of entropy
+		poolfeed[i*2] =  (unsigned char)255*input[i*2];
+		//unsigned char uc1 = 255*input[i*2];
+		//poolfeed[i*2] = uc1;
+		if(!trigger) ofLogVerbose() << "uc1 = " << 255*input[i*2]; //(int)poolfeed[i*2];
+		//poolfeed.push_back(uc1);
+		poolfeed[i*2+1] =  (unsigned char)255*input[i*2+1];
+		//unsigned char uc2 = 255*input[i*2+1];
+		if(!trigger) ofLogVerbose() << "uc2 = " << 255*input[i*2+1]; //(int)poolfeed[i*2+1];
+
+		//poolfeed.push_back(uc2);
 
 		curVol += state.getSharedData().left[i] * state.getSharedData().left[i];
 		curVol += state.getSharedData().right[i] * state.getSharedData().right[i];
 		numCounted+=2;
 	}
+
+    //if(!trigger) {
+    //    ofLogVerbose() << "byte count = " << bcount;
+        trigger = true;
+    //}
+
+    //kernel_rng_add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3) ); // yolo
+    pool.add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3));
 
 	//this is how we get the mean of rms :)
 	curVol /= (float)numCounted;
@@ -129,6 +180,8 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 	state.getSharedData().smoothedVol += 0.07 * curVol;
 
 	state.getSharedData().bufferCounter++;
+
+	//poolfeed.clear();
 }
 
 
