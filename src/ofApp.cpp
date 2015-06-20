@@ -200,6 +200,9 @@ void ofApp::audioOut(float * output, int bufferSize, int nChannels){
             output[i*2    ] = state.getSharedData().left[i];
             output[i*2 + 1] = state.getSharedData().right[i];
         }
+    } else {
+            output[i*2    ] = 0;
+            output[i*2 + 1] = 0;
     }
 }
 
