@@ -157,6 +157,7 @@ void PatientScreen::guiEvent(ofxUIEventArgs &e)
         if( (button->getValue() == 0) && (btnLastValue == 1) ) {
             if( isFormFilled() ) {
                 ofLogVerbose() << "(i) name: " << getSharedData().gpgName << ", email: " << getSharedData().gpgEmail;
+                changeState("scnGetReady");
             } else {
                 warning.message = "Form is missing something\nplease fill out in full!";
                 warning.created = ofGetElapsedTimeMillis();
@@ -412,7 +413,7 @@ void KeygenScreen::mousePressed(int x, int y, int button)
 void KeygenScreen::keyPressed(int key) {
     switch(key) {
         case OF_KEY_RIGHT:
-            changeState("scnStart");
+            changeState("scnThankyou");
             break;
         case OF_KEY_LEFT:
             changeState("scnPatient");
