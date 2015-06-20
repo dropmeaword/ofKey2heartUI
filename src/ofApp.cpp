@@ -156,11 +156,11 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 		poolfeed[i*2] =  (unsigned char)255*input[i*2];
 		//unsigned char uc1 = 255*input[i*2];
 		//poolfeed[i*2] = uc1;
-		if(!trigger) ofLogVerbose() << "uc1 = " << 255*input[i*2]; //(int)poolfeed[i*2];
+		//if(!trigger) ofLogVerbose() << "uc1 = " << 255*input[i*2]; //(int)poolfeed[i*2];
 		//poolfeed.push_back(uc1);
 		poolfeed[i*2+1] =  (unsigned char)255*input[i*2+1];
 		//unsigned char uc2 = 255*input[i*2+1];
-		if(!trigger) ofLogVerbose() << "uc2 = " << 255*input[i*2+1]; //(int)poolfeed[i*2+1];
+		//if(!trigger) ofLogVerbose() << "uc2 = " << 255*input[i*2+1]; //(int)poolfeed[i*2+1];
 
 		//poolfeed.push_back(uc2);
 
