@@ -470,7 +470,7 @@ void ThankyouScreen::draw()
 {
     ofBackgroundGradient(ofColor::grey, ofColor::black);
 	ofSetColor(255, 255, 255);
-	string msg = "Thanks!\nPlease get ready in the identity booth...";
+	string msg = "Thanks!\nEnjoy your new identity.";
 	ofRectangle bbox = getSharedData().font.getStringBoundingBox(msg, 0,0);
 	getSharedData().font.drawString(msg, ((ofGetWidth() >> 1) - bbox.width/2), ((ofGetHeight() >> 1) - bbox.height/2) );
 }
@@ -480,6 +480,9 @@ void ThankyouScreen::mousePressed(int x, int y, int button)
 }
 
 void ThankyouScreen::keyPressed(int key) {
+    // on any key
+    changeState("scnStart");
+/*
     switch(key) {
         case OF_KEY_RIGHT:
             changeState("scnStart");
@@ -490,6 +493,7 @@ void ThankyouScreen::keyPressed(int key) {
         default:
             break;
     }
+*/
 }
 
 string ThankyouScreen::getName()
