@@ -197,6 +197,7 @@ string PatientScreen::getName()
 // ///////////////////////////////////////////////////////////////////////////
 void GetReadyScreen::stateEnter() {
     getSharedData().currentState = this->getName();
+    getSharedData().recording = true;
 }
 
 void GetReadyScreen::stateExit() {
@@ -245,11 +246,13 @@ string GetReadyScreen::getName()
 // ///////////////////////////////////////////////////////////////////////////
 void KeygenScreen::stateEnter() {
     wasKeyGenerated = false;
+    getSharedData().recording = true;
     entered = ofGetElapsedTimeMillis();
     getSharedData().currentState = this->getName();
 }
 
 void KeygenScreen::stateExit() {
+    getSharedData().recording = false;
 }
 
 

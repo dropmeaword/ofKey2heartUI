@@ -10,8 +10,9 @@ void ofApp::setup(){
 
     if( geteuid() != 0) {
         ofLogWarning() << "(!!!)";
-        ofLogWarning() << "(!!!) PLEASE RUN THIS AS ROOT!";
+        ofLogWarning() << "(!!!) HACKETY HACK! THIS GOTTA RUN AS ROOT!";
         ofLogWarning() << "(!!!) otherwise this software cannot add to the entropy pool";
+        ofLogWarning() << "(!!!) this is worse than bad, I know.";
         ofLogWarning() << "(!!!)";
     }
 
@@ -23,6 +24,7 @@ void ofApp::setup(){
 	ofSetVerticalSync(true);
 	ofBackground(54, 54, 54);
 
+    state.getSharedData().recording = false;
 	state.getSharedData().randomPoolSize = getEntropyPoolSize();
 
     ofLogVerbose() << "Poolsize: " << state.getSharedData().randomPoolSize;
@@ -73,7 +75,12 @@ void ofApp::setup(){
     //poolfeed.resize(bufferSize*2);
     //poolfeed = new unsigned char[bufferSize*4];  // times number of channels
 
-	int ret = soundStream.setup(this, 0, 2, 44100, bufferSize, 4);
+	//soundStream.listDevices();
+	//if you want to set the device id to be different than the default
+	//soundStream.setDeviceID(1); 	//note some devices are input only and some are output only
+
+    // bool ofSoundStream::setup(ofBaseApp *app, int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers)
+	int ret = soundStream.setup(this, 2, 2, 44100, bufferSize, 4);
     ofLogVerbose() << "soundStream.setup: " << ret;
 }
 
@@ -168,7 +175,9 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     //}
 
     //kernel_rng_add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3) ); // yolo
-    pool.add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3));
+    if( state.getSharedData().recording ) {
+        pool.add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3));
+    }
 
 	//this is how we get the mean of rms :)
 	curVol /= (float)numCounted;
@@ -184,6 +193,15 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 	//poolfeed.clear();
 }
 
+//--------------------------------------------------------------
+void ofApp::audioOut(float * output, int bufferSize, int nChannels){
+    if( state.getSharedData().recording ) {
+        for (int i = 0; i < bufferSize; i++){
+            output[i*2    ] = state.getSharedData().left[i];
+            output[i*2 + 1] = state.getSharedData().right[i];
+        }
+    }
+}
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

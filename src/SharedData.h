@@ -22,5 +22,7 @@ public:
 
     int randomPoolSize;
 
+    bool recording;
+
     string currentState;
 };

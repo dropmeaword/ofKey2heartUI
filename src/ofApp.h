@@ -35,6 +35,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
         void audioIn(float * input, int bufferSize, int nChannels);
+		void audioOut(float * input, int bufferSize, int nChannels);
 
         ofSoundStream soundStream;
 		ofxOscReceiver oscr;
