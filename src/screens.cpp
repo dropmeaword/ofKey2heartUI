@@ -345,7 +345,8 @@ void KeygenScreen::draw()
 		ofSetLineWidth(1);
 		ofRect(0, 0, 512, 200);
 
-		ofSetColor(245, 58, 135);
+		//ofSetColor(245, 58, 135);
+		ofSetColor(0, 245, 0);
 		ofSetLineWidth(3);
 
 			ofBeginShape();
@@ -371,7 +372,8 @@ void KeygenScreen::draw()
 		ofSetLineWidth(1);
 		ofRect(0, 0, 512, 200);
 
-		ofSetColor(245, 58, 135);
+		//ofSetColor(245, 58, 135);
+		ofSetColor(0, 245, 0);
 		ofSetLineWidth(3);
 
 		//lets draw the volume history as a graph
@@ -401,7 +403,8 @@ void KeygenScreen::draw()
 		//ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(getSharedData().scaledVol * 100.0, 0), 4, 18);
 		//ofRect(0, 0, 400, 400);
 
-		ofSetColor(245, 58, 135);
+		//ofSetColor(245, 58, 135);
+		ofSetColor(0, 245, 0);
 		ofFill();
 		ofCircle(200, 200, getSharedData().scaledVol * 120.0f);
 

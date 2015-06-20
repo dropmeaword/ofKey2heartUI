@@ -108,6 +108,15 @@ void ofApp::oscLoop() {
                 state.changeState("scnPatient");
 			}
 		}
+
+		if(m.getAddress() == "/k2h/done"){
+            ofLogVerbose() << "Keys have been generated";
+			string action = m.getArgAsString(0);
+			if(state.getSharedData().currentState == "scnKeygen") {
+                ofLogVerbose() << "Changing state";
+                state.changeState("scnThankyou");
+			}
+		}
 	} // while
 }
 
@@ -195,14 +204,14 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 
 //--------------------------------------------------------------
 void ofApp::audioOut(float * output, int bufferSize, int nChannels){
-    if( state.getSharedData().recording ) {
-        for (int i = 0; i < bufferSize; i++){
+    for (int i = 0; i < bufferSize; i++){
+        if( state.getSharedData().recording ) {
             output[i*2    ] = state.getSharedData().left[i];
             output[i*2 + 1] = state.getSharedData().right[i];
-        }
-    } else {
+        } else {
             output[i*2    ] = 0;
             output[i*2 + 1] = 0;
+        }
     }
 }
 
