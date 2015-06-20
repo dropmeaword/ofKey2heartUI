@@ -46,6 +46,7 @@ public:
 
     ofxUITextInput *txtName;
     ofxUITextInput *txtEmail;
+    ofxUILabelButton *button;
 
     ofxUICanvas *gui;
 

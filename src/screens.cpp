@@ -103,10 +103,15 @@ void PatientScreen::setup() {
     gui->addLabel("ENTER EMAIL", OFX_UI_FONT_SMALL);
     txtEmail = gui->addTextInput("TXT_EMAIL", "");
     gui->addSpacer(8);
-    gui->addLabelButton("Create", false);
+    button = gui->addLabelButton("Create", false);
     gui->autoSizeToFitWidgets();
     gui->setVisible(false);
     ofAddListener(gui->newGUIEvent, this, &PatientScreen::guiEvent);
+
+    txtName->setAutoUnfocus(true);
+    txtEmail->setAutoUnfocus(true);
+
+    txtName->setFocus(true);
 }
 
 void PatientScreen::update()
@@ -178,6 +183,7 @@ void PatientScreen::mousePressed(int x, int y, int button)
 }
 
 void PatientScreen::keyPressed(int key) {
+    bool changed = false;
     switch(key) {
         case OF_KEY_RIGHT:
             changeState("scnGetReady");
@@ -185,6 +191,20 @@ void PatientScreen::keyPressed(int key) {
         case OF_KEY_LEFT:
             changeState("scnStart");
             break;
+        case OF_KEY_TAB:
+            if( txtName->isFocused() && !changed ) {
+                txtName->setFocus(false);
+                txtEmail->setFocus(true);
+                changed = true;
+            }
+
+            if( txtEmail->isFocused() && !changed ) {
+                txtName->setFocus(true);
+                txtEmail->setFocus(false);
+                changed = true;
+            }
+            break;
+
         default:
             break;
     }
