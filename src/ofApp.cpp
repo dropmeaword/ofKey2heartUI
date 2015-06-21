@@ -80,7 +80,7 @@ void ofApp::setup(){
 	//soundStream.setDeviceID(1); 	//note some devices are input only and some are output only
 
     // bool ofSoundStream::setup(ofBaseApp *app, int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers)
-	int ret = soundStream.setup(this, 2, 2, 44100, bufferSize, 4);
+	int ret = soundStream.setup(this, 2, 0, 44100, bufferSize, 2); //4);
     ofLogVerbose() << "soundStream.setup: " << ret;
 }
 
@@ -203,6 +203,7 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 }
 
 //--------------------------------------------------------------
+/*
 void ofApp::audioOut(float * output, int bufferSize, int nChannels){
     for (int i = 0; i < bufferSize; i++){
         if( state.getSharedData().recording ) {
@@ -214,6 +215,7 @@ void ofApp::audioOut(float * output, int bufferSize, int nChannels){
         }
     }
 }
+*/
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

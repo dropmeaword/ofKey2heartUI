@@ -164,8 +164,8 @@ public:
         ofLogVerbose() << "command [genkey]: name: " << _name << " email: " << _email;
         std::string cmd("genkeys");
         std::vector<std::string> args;
-        args.push_back("\""+_name+"\"");
-        args.push_back("\""+_email+"\"");
+        args.push_back(""+_name+"");
+        args.push_back(""+_email+"");
         Poco::Pipe outPipe;
         ProcessHandle ph = Process::launch(cmd, args, 0, &outPipe, 0);
         Poco::PipeInputStream istr(outPipe);

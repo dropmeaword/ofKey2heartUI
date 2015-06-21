@@ -204,6 +204,18 @@ void PatientScreen::keyPressed(int key) {
                 changed = true;
             }
             break;
+        case OF_KEY_RETURN:
+            if( isFormFilled() ) {
+                ofLogVerbose() << "(i) name: " << getSharedData().gpgName << ", email: " << getSharedData().gpgEmail;
+                changeState("scnGetReady");
+            } else {
+                warning.message = "Form is missing something\nplease fill out in full!";
+                warning.created = ofGetElapsedTimeMillis();
+                warning.ttl = 10000;
+
+                ofLogVerbose() << "Form is missing something, please fill out in full!";
+            }
+            break;
 
         default:
             break;
