@@ -282,14 +282,36 @@ void KeygenScreen::stateEnter() {
     getSharedData().recording = true;
     entered = ofGetElapsedTimeMillis();
     getSharedData().currentState = this->getName();
+    //gui->setVisible(true);
 }
 
 void KeygenScreen::stateExit() {
     getSharedData().recording = false;
+    //gui->setVisible(false);
 }
 
 
 void KeygenScreen::setup() {
+    svg.load("drawing-heart.svg");
+    //svg.load("heart2.svg");
+
+/*
+    for(int i = 0; i < 256; i++)
+    {
+        entropyHistory.push_back(0.0);
+    }
+
+    // setup UI
+    gui = new ofxUICanvas((ofGetScreenWidth()/2)-200, ofGetScreenHeight()/2, 400, 400);
+
+    gui->addLabel("HEARTBEAT", OFX_UI_FONT_SMALL);
+    heart = gui->addMovingGraph("grHeartbeat", entropyHistory, 256, -1.0, -1.0);
+    gui->addLabel("ENTROPY", OFX_UI_FONT_SMALL);
+    entropy = gui->addMovingGraph("grEntropy", entropyHistory, 256, 0.0, 4096);
+
+    gui->autoSizeToFitWidgets();
+    gui->setVisible(false);
+*/
 	ofSetCircleResolution(80);
 }
 
@@ -314,6 +336,7 @@ void KeygenScreen::update()
         if( entropyHistory.size() >= 510 ){
             entropyHistory.erase(entropyHistory.begin(), entropyHistory.begin()+1);
         }
+        //entropy->addPoint(entropyAvailable);
 //    }
 
 	//lets scale the vol up to a 0-1 range
@@ -337,6 +360,8 @@ void KeygenScreen::update()
 void KeygenScreen::draw()
 {
     ofBackgroundGradient(ofColor::grey, ofColor::black);
+
+    //getSharedData().fft.draw(0, 0, 200, 200);
 
 	ofSetColor(225);
 
@@ -393,10 +418,9 @@ void KeygenScreen::draw()
 		float xp = 0;
 		ofBeginShape();
 		for (unsigned int i = 0; i < entropyHistory.size(); i++){
-			//if( i == 0 ) ofVertex(i, gheight);
-			ofVertex(i, 100 - entropyHistory[i] * gheight);
+			float offset = ofMap(entropyHistory[i], 0, 1.0, 2, 198);
+			ofVertex(i, 200 - offset); //100 - entropyHistory[i] * gheight);
 			xp += step;
-			//if( i == entropyHistory.size() -1 ) ofVertex(i, gheight);
 		}
 		ofEndShape(false);
 
@@ -405,6 +429,13 @@ void KeygenScreen::draw()
 
     xpos = 565;
     ypos = 170;
+
+
+    ofPushMatrix();
+        ofTranslate(ofGetScreenWidth()*0.45, ofGetScreenHeight()*0.20);
+        ofScale(0.45, 0.45);
+        svg.draw();
+    ofPopMatrix();
 
 	// draw the average volume:
 	ofPushStyle();
@@ -435,10 +466,6 @@ void KeygenScreen::draw()
 	ofPopStyle();
 
 	getSharedData().drawCounter++;
-
-//	ofSetColor(225);
-//	string reportString = "buffers received: "+ofToString(getSharedData().bufferCounter)+"\ndraw routines called: "+ofToString(getSharedData().drawCounter)+"\nticks: " + ofToString(soundStream.getTickCount());
-//	ofDrawBitmapString(reportString, 32, 589);
 }
 
 void KeygenScreen::mousePressed(int x, int y, int button)

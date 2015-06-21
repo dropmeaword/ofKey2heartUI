@@ -49,6 +49,8 @@ void ofApp::setup(){
 
     // AUDIO INPUT
 
+    state.getSharedData().fft.setup();
+
 	// 0 output channels,
 	// 2 input channels
 	// 44100 samples per second
@@ -66,8 +68,8 @@ void ofApp::setup(){
 	state.getSharedData().volHistory.assign(400, 0.0);
 
 	state.getSharedData().bufferCounter	= 0;
-	state.getSharedData().drawCounter		= 0;
-	state.getSharedData().smoothedVol     = 0.0;
+	state.getSharedData().drawCounter   = 0;
+	state.getSharedData().smoothedVol   = 0.0;
 	state.getSharedData().scaledVol		= 0.0;
 
     trigger = false;
@@ -111,7 +113,6 @@ void ofApp::oscLoop() {
 
 		if(m.getAddress() == "/k2h/done"){
             ofLogVerbose() << "Keys have been generated";
-			string action = m.getArgAsString(0);
 			if(state.getSharedData().currentState == "scnKeygen") {
                 ofLogVerbose() << "Changing state";
                 state.changeState("scnThankyou");
@@ -199,6 +200,7 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 
 	state.getSharedData().bufferCounter++;
 
+    state.getSharedData().fft.audioIn(input);
 	//poolfeed.clear();
 }
 

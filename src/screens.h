@@ -4,6 +4,7 @@
 #include "SharedData.h"
 #include "ofMain.h"
 #include "ofxUI.h"
+#include "ofxSvg.h"
 
 #include "shell.h"
 
@@ -80,6 +81,12 @@ class KeygenScreen : public itg::ofxState<SharedData>
     bool wasKeyGenerated;
 
     ThreadGenKey keygen;
+
+    ofxSVG svg;
+
+//    ofxUIMovingGraph *heart;
+//    ofxUIMovingGraph *entropy;
+//    ofxUICanvas *gui;
 
 public:
 

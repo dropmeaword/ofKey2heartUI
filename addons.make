@@ -3,3 +3,5 @@ ofxXmlSettings
 ofxStateMachine
 ofxUI
 ofxWaveHandler
+ofxFFT
+ofxSvg

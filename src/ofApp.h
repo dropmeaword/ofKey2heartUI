@@ -6,6 +6,7 @@
 #include "ofxStateMachine.h"
 #include "ofxOsc.h"
 #include "ofxWaveHandler.h"
+#include "ofxFFTBase.h"
 #include "SharedData.h"
 #include "screens.h"
 #include "randpool.h"
@@ -40,6 +41,7 @@ class ofApp : public ofBaseApp{
         ofSoundStream soundStream;
 		ofxOscReceiver oscr;
         ofxWaveHandler* waveObject;
+        ofxFFTBase fft;
 
     private:
         itg::ofxStateMachine<SharedData> state;
