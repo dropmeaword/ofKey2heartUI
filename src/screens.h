@@ -37,6 +37,8 @@ public:
     void setup();
 	void update();
 	void draw();
+
+
 	void mousePressed(int x, int y, int button);
     void keyPressed(int key);
 	string getName();
@@ -54,6 +56,7 @@ public:
     tMessage warning;
 
     void readForm();
+	void clearForm();
     bool isFormFilled();
 
     void guiEvent(ofxUIEventArgs &e);
@@ -79,6 +82,8 @@ class KeygenScreen : public itg::ofxState<SharedData>
 
     long entered;
     bool wasKeyGenerated;
+
+    bool showfft;
 
     ThreadGenKey keygen;
 

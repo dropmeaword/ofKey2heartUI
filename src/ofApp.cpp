@@ -79,10 +79,10 @@ void ofApp::setup(){
 
 	//soundStream.listDevices();
 	//if you want to set the device id to be different than the default
-	//soundStream.setDeviceID(1); 	//note some devices are input only and some are output only
+	soundStream.setDeviceID(2); 	//note some devices are input only and some are output only
 
     // bool ofSoundStream::setup(ofBaseApp *app, int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers)
-	int ret = soundStream.setup(this, 2, 0, 44100, bufferSize, 2); //4);
+	int ret = soundStream.setup(this, 0, 2, 44100, bufferSize, 4); //4);
     ofLogVerbose() << "soundStream.setup: " << ret;
 }
 

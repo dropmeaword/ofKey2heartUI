@@ -90,6 +90,7 @@ void PatientScreen::stateEnter() {
 
 void PatientScreen::stateExit() {
     gui->setVisible(false);
+    clearForm();
 }
 
 void PatientScreen::setup() {
@@ -138,6 +139,11 @@ void PatientScreen::draw()
 void PatientScreen::readForm() {
     getSharedData().gpgName  = txtName->getTextString();
     getSharedData().gpgEmail = txtEmail->getTextString();
+}
+
+void PatientScreen::clearForm() {
+    txtName->setTextString("");
+    txtEmail->setTextString("");
 }
 
 bool PatientScreen::isFormFilled() {
@@ -295,6 +301,8 @@ void KeygenScreen::setup() {
     svg.load("drawing-heart.svg");
     //svg.load("heart2.svg");
 
+    showfft = false;
+
 /*
     for(int i = 0; i < 256; i++)
     {
@@ -361,7 +369,9 @@ void KeygenScreen::draw()
 {
     ofBackgroundGradient(ofColor::grey, ofColor::black);
 
-    //getSharedData().fft.draw(0, 0, 200, 200);
+    if(showfft) {
+        getSharedData().fft.draw(0, 0, 400, 400);
+    }
 
 	ofSetColor(225);
 
@@ -479,6 +489,9 @@ void KeygenScreen::keyPressed(int key) {
             break;
         case OF_KEY_LEFT:
             changeState("scnPatient");
+            break;
+        case 'f':
+            showfft = !showfft;
             break;
         default:
             break;
