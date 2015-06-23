@@ -6,7 +6,7 @@ using namespace randpool;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_NOTICE);
 
     if( geteuid() != 0) {
         ofLogWarning() << "(!!!)";
@@ -123,8 +123,6 @@ void ofApp::oscLoop() {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofSetColor(0, 0, 0);
-    ofDrawBitmapString("Mouse click changes state", 20, 20);
 }
 
 //--------------------------------------------------------------
@@ -201,7 +199,7 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 
 	state.getSharedData().bufferCounter++;
 
-    state.getSharedData().fft.audioIn(input);
+    //state.getSharedData().fft.audioIn(input);
 	//poolfeed.clear();
 }
 

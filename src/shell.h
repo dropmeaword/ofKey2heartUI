@@ -91,7 +91,7 @@ public:
 
         stringstream out;
         Poco::StreamCopier::copyStream(istr, out);
-        ofLogVerbose() << "command [installbookshelf]: " << out.str();
+        ofLogNotice() << "command [installbookshelf]: " << out.str();
 
         int rc = ph.wait();
 
@@ -161,7 +161,7 @@ public:
 */
 
         // install the bookshelf
-        ofLogVerbose() << "command [genkey]: name: " << _name << " email: " << _email;
+        ofLogNotice() << "command [genkey]: name: " << _name << " email: " << _email;
         std::string cmd("genkeys");
         std::vector<std::string> args;
         args.push_back(""+_name+"");

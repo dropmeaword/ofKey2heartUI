@@ -340,7 +340,7 @@ void KeygenScreen::gpgKeyGenerate() {
 
 void KeygenScreen::update()
 {
-    getSharedData().fft.update();
+    //getSharedData().fft.update();
     heart.update();
 
     // count seconds
@@ -442,44 +442,81 @@ void KeygenScreen::drawEntropy(string name, float x, float y, float w, float h, 
 
 void KeygenScreen::draw()
 {
-    ofEnableAlphaBlending();
-//    ofBackgroundGradient(ofColor::grey, ofColor::black);
-	ofBackground(0, 0, 0);
-
-    if(showfft) {
-        getSharedData().fft.draw(0, 0, 400, 400);
-    }
+    ofBackgroundGradient(ofColor::grey, ofColor::black);
 
 	ofSetColor(225);
+
 	ofNoFill();
-
-    float vw = heart.getWidth() * .6;
-    float vh = heart.getHeight() * .6;
-    heart.draw(540, (ofGetScreenHeight()/2)-(vh/2), vw, vh);
-
 
     int xpos = 32;
     int ypos = 170;
     int gheight = 180;
 
-    drawAudio("Heartbeat", xpos, ypos, 512, 200, getSharedData().left);
+	// draw the left channel:
+	ofPushStyle();
+		ofPushMatrix();
+		ofTranslate(xpos, ypos, 0);
+
+		ofSetColor(225);
+		ofDrawBitmapString("Heartbeat", 4, 18);
+
+		ofSetLineWidth(1);
+		ofRect(0, 0, 512, 200);
+
+		//ofSetColor(245, 58, 135);
+		ofSetColor(0, 245, 0);
+		ofSetLineWidth(3);
+
+			ofBeginShape();
+			for (unsigned int i = 0; i < getSharedData().left.size(); i++){
+				ofVertex(i*2, 100 -getSharedData().left[i]*gheight);
+			}
+			ofEndShape(false);
+
+		ofPopMatrix();
+	ofPopStyle();
 
     ypos += 250;
     int gwidth = 200;
-
-    ofSetColor(255, 255, 255, 30);
-	stringstream ss;
-	ss << (int)(entropyAvailable*100) << " of " << getSharedData().randomPoolSize;
-	ofRectangle bbox = getSharedData().font.getStringBoundingBox(ss.str(), 0,0);
-	getSharedData().font.drawString(ss.str(), (bbox.width/2)+xpos-80, (bbox.height/2)+ypos+70 );
 
     drawEntropy("Random pool", xpos, ypos, 512, 200, entropyHistory);
 
     xpos = 565;
     ypos = 170;
 
+	// draw the average volume:
+	ofPushStyle();
+		ofPushMatrix();
+		ofTranslate(xpos, ypos, 0);
+
+		ofSetColor(225);
+		//ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(getSharedData().scaledVol * 100.0, 0), 4, 18);
+		//ofRect(0, 0, 400, 400);
+
+		//ofSetColor(245, 58, 135);
+		ofSetColor(0, 245, 0);
+		ofFill();
+		ofCircle(200, 200, getSharedData().scaledVol * 120.0f);
+
+		//lets draw the volume history as a graph
+//		ofBeginShape();
+//		for (unsigned int i = 0; i < entropyHistory.size(); i++){
+//			if( i == 0 ) ofVertex(i, 400);
+//
+//			ofVertex(i, 400 - entropyHistory[i] * 70);
+//
+//			if( i == entropyHistory.size() -1 ) ofVertex(i, 400);
+//		}
+//		ofEndShape(false);
+
+		ofPopMatrix();
+	ofPopStyle();
 
 	getSharedData().drawCounter++;
+
+//	ofSetColor(225);
+//	string reportString = "buffers received: "+ofToString(getSharedData().bufferCounter)+"\ndraw routines called: "+ofToString(getSharedData().drawCounter)+"\nticks: " + ofToString(soundStream.getTickCount());
+//	ofDrawBitmapString(reportString, 32, 589);
 }
 
 void KeygenScreen::mousePressed(int x, int y, int button)
