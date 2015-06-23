@@ -254,7 +254,7 @@ void GetReadyScreen::draw()
 {
     ofBackgroundGradient(ofColor::grey, ofColor::black);
 	ofSetColor(255, 255, 255);
-	string msg = "Thanks!\nPlease get ready in the identity booth...";
+	string msg = "Get ready...";
 	ofRectangle bbox = getSharedData().font.getStringBoundingBox(msg, 0,0);
 	getSharedData().font.drawString(msg, ((ofGetWidth() >> 1) - bbox.width/2), ((ofGetHeight() >> 1) - bbox.height/2) );
 }
@@ -481,7 +481,7 @@ void KeygenScreen::draw()
 
     drawEntropy("Random pool", xpos, ypos, 512, 200, entropyHistory);
 
-    xpos = 800;
+    xpos = 950;
     ypos = 400;
 
 	// draw the average volume:
@@ -496,7 +496,7 @@ void KeygenScreen::draw()
 		//ofSetColor(245, 58, 135);
 		ofSetColor(0, 245, 0);
 		ofFill();
-		ofCircle(200, 200, getSharedData().scaledVol * 120.0f);
+		ofCircle(200, 200, getSharedData().scaledVol * 300.0f);
 
 		//lets draw the volume history as a graph
 //		ofBeginShape();
