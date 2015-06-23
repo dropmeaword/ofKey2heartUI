@@ -186,7 +186,8 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels){
 
     //kernel_rng_add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3) ); // yolo
     if( state.getSharedData().recording ) {
-        pool.add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3));
+//        pool.add_entropy(poolfeed, bufferSize*2, ((bufferSize*2)<<3));
+        pool.add_entropy(poolfeed, bufferSize*2, 4); // increase by 4 bits of entropy on every buffer fill
     }
 
 	//this is how we get the mean of rms :)
