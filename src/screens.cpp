@@ -448,8 +448,8 @@ void KeygenScreen::draw()
 
 	ofNoFill();
 
-    int xpos = 32;
-    int ypos = 170;
+    int xpos = 100;
+    int ypos = 400;
     int gheight = 180;
 
 	// draw the left channel:
@@ -481,8 +481,8 @@ void KeygenScreen::draw()
 
     drawEntropy("Random pool", xpos, ypos, 512, 200, entropyHistory);
 
-    xpos = 565;
-    ypos = 170;
+    xpos = 800;
+    ypos = 400;
 
 	// draw the average volume:
 	ofPushStyle();
