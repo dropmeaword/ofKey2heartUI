@@ -289,6 +289,13 @@ void KeygenScreen::stateEnter() {
     entered = ofGetElapsedTimeMillis();
     getSharedData().currentState = this->getName();
     //gui->setVisible(true);
+	heart.play();
+    heart.setLoopState(OF_LOOP_NORMAL);
+
+    getSharedData().wasKeyGenerated = false;
+
+    seconds = 0;
+    lastUpdate = ofGetElapsedTimeMillis();
 }
 
 void KeygenScreen::stateExit() {
@@ -298,8 +305,10 @@ void KeygenScreen::stateExit() {
 
 
 void KeygenScreen::setup() {
-    svg.load("drawing-heart.svg");
+    //svg.load("drawing-heart.svg");
     //svg.load("heart2.svg");
+
+	heart.loadMovie("heartbeat.mp4");
 
     showfft = false;
 
@@ -331,21 +340,31 @@ void KeygenScreen::gpgKeyGenerate() {
 
 void KeygenScreen::update()
 {
+    getSharedData().fft.update();
+    heart.update();
+
+    // count seconds
+	if (ofGetElapsedTimeMillis() - lastUpdate > 1000)
+	{
+		seconds++;
+		lastUpdate = ofGetElapsedTimeMillis();
+	}
+
+    // generate key 5 seconds into this screen
 	if ( (ofGetElapsedTimeMillis() - entered > 5000) && (!keygen.isThreadRunning() && !wasKeyGenerated) )
 	{
 	    this->gpgKeyGenerate();
 	}
 
-//    if( (ofGetElapsedTimeMillis() % 250) == 0 ) {
-        entropyAvailable = 1.0 * randpool::getEntropyPoolAvailable();
-        entropyAvailable = ofMap(entropyAvailable, .0, getSharedData().randomPoolSize, .0, 1.0, true);
+    // take entropy data
+    entropyAvailable = 1.0 * randpool::getEntropyPoolAvailable();
+    entropyAvailable = ofMap(entropyAvailable, .0, getSharedData().randomPoolSize, .0, 1.0, true);
 
-        entropyHistory.push_back( entropyAvailable );
-        if( entropyHistory.size() >= 510 ){
-            entropyHistory.erase(entropyHistory.begin(), entropyHistory.begin()+1);
-        }
-        //entropy->addPoint(entropyAvailable);
-//    }
+    entropyHistory.push_back( entropyAvailable );
+    if( entropyHistory.size() >= 510 ){
+        entropyHistory.erase(entropyHistory.begin(), entropyHistory.begin()+1);
+    }
+
 
 	//lets scale the vol up to a 0-1 range
 	getSharedData().scaledVol = ofMap(getSharedData().smoothedVol, 0.0, 0.3, 0.0, 1.0, true);
@@ -360,120 +379,105 @@ void KeygenScreen::update()
 
     // if the key generation process is completed
 	if(keygen.isDone() && !wasKeyGenerated) {
-        wasKeyGenerated = true;
+        getSharedData().wasKeyGenerated = true;
         ofLogNotice() << "key generated successfully...";
 	}
+
+    long timeLimit = 60*2+30;
+	if( (seconds > timeLimit) && getSharedData().wasKeyGenerated) {
+        changeState("scnThankyou");
+	}
+}
+
+void KeygenScreen::drawAudio(string name, float x, float y, float w, float h, vector<float> &data) {
+    ofPushMatrix();
+        ofTranslate(x, y, 0);
+
+        ofSetColor(225);
+        ofDrawBitmapString(name, 4, 18);
+
+        ofSetLineWidth(1);
+        ofRect(0, 0, w, h);
+
+		ofSetColor(0, 245, 0);
+		ofSetLineWidth(3);
+
+        ofBeginShape();
+        for (unsigned int i = 0; i < data.size(); i++){
+            float yp = (h/2) - data[i] * (h*0.5);
+            ofVertex(i*2, yp); //100 - getSharedData().left[i]*gheight);
+        }
+        ofEndShape(false);
+    ofPopMatrix();
+}
+
+void KeygenScreen::drawEntropy(string name, float x, float y, float w, float h, vector<float> &data) {
+    ofPushMatrix();
+        ofTranslate(x, y, 0);
+
+        ofSetColor(225);
+        ofDrawBitmapString(name, 4, 18);
+
+        ofSetLineWidth(1);
+        ofRect(0, 0, w, h);
+
+		ofSetColor(0, 245, 0);
+		ofSetLineWidth(3);
+
+        //lets draw the volume history as a graph
+        float step = (w-2) / data.size();
+        float xp = 0;
+        ofBeginShape();
+        for (unsigned int i = 0; i < data.size(); i++){
+            float offset = ofMap(data[i], 0, 1.0, 2, h-2);
+            if (data[i] < 0.40) ofSetColor(245, 245, 0);
+            if (data[i] < 0.20) ofSetColor(245, 100, 0);
+            if (data[i] < 0.10) ofSetColor(245, 0, 0);
+            ofVertex(i, h - offset); //100 - entropyHistory[i] * gheight);
+            xp += step;
+        }
+        ofEndShape(false);
+    ofPopMatrix();
 }
 
 void KeygenScreen::draw()
 {
-    ofBackgroundGradient(ofColor::grey, ofColor::black);
+    ofEnableAlphaBlending();
+//    ofBackgroundGradient(ofColor::grey, ofColor::black);
+	ofBackground(0, 0, 0);
 
     if(showfft) {
         getSharedData().fft.draw(0, 0, 400, 400);
     }
 
 	ofSetColor(225);
-
 	ofNoFill();
+
+    float vw = heart.getWidth() * .6;
+    float vh = heart.getHeight() * .6;
+    heart.draw(540, (ofGetScreenHeight()/2)-(vh/2), vw, vh);
+
 
     int xpos = 32;
     int ypos = 170;
     int gheight = 180;
 
-	// draw the left channel:
-	ofPushStyle();
-		ofPushMatrix();
-		ofTranslate(xpos, ypos, 0);
-
-		ofSetColor(225);
-		ofDrawBitmapString("Heartbeat", 4, 18);
-
-		ofSetLineWidth(1);
-		ofRect(0, 0, 512, 200);
-
-		//ofSetColor(245, 58, 135);
-		ofSetColor(0, 245, 0);
-		ofSetLineWidth(3);
-
-			ofBeginShape();
-			for (unsigned int i = 0; i < getSharedData().left.size(); i++){
-				ofVertex(i*2, 100 -getSharedData().left[i]*gheight);
-			}
-			ofEndShape(false);
-
-		ofPopMatrix();
-	ofPopStyle();
+    drawAudio("Heartbeat", xpos, ypos, 512, 200, getSharedData().left);
 
     ypos += 250;
     int gwidth = 200;
 
-	// draw the right channel:
-	ofPushStyle();
-		ofPushMatrix();
-		ofTranslate(xpos, ypos, 0);
+    ofSetColor(255, 255, 255, 30);
+	stringstream ss;
+	ss << (int)(entropyAvailable*100) << " of " << getSharedData().randomPoolSize;
+	ofRectangle bbox = getSharedData().font.getStringBoundingBox(ss.str(), 0,0);
+	getSharedData().font.drawString(ss.str(), (bbox.width/2)+xpos-80, (bbox.height/2)+ypos+70 );
 
-		ofSetColor(225);
-		ofDrawBitmapString("Random pool", 4, 18);
-
-		ofSetLineWidth(1);
-		ofRect(0, 0, 512, 200);
-
-		//ofSetColor(245, 58, 135);
-		ofSetColor(0, 245, 0);
-		ofSetLineWidth(3);
-
-		//lets draw the volume history as a graph
-		float step = gwidth / entropyHistory.size();
-		float xp = 0;
-		ofBeginShape();
-		for (unsigned int i = 0; i < entropyHistory.size(); i++){
-			float offset = ofMap(entropyHistory[i], 0, 1.0, 2, 198);
-			ofVertex(i, 200 - offset); //100 - entropyHistory[i] * gheight);
-			xp += step;
-		}
-		ofEndShape(false);
-
-		ofPopMatrix();
-	ofPopStyle();
+    drawEntropy("Random pool", xpos, ypos, 512, 200, entropyHistory);
 
     xpos = 565;
     ypos = 170;
 
-
-    ofPushMatrix();
-        ofTranslate(ofGetScreenWidth()*0.45, ofGetScreenHeight()*0.20);
-        ofScale(0.45, 0.45);
-        svg.draw();
-    ofPopMatrix();
-
-	// draw the average volume:
-	ofPushStyle();
-		ofPushMatrix();
-		ofTranslate(xpos, ypos, 0);
-
-		ofSetColor(225);
-		//ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(getSharedData().scaledVol * 100.0, 0), 4, 18);
-		//ofRect(0, 0, 400, 400);
-
-		//ofSetColor(245, 58, 135);
-		ofSetColor(0, 245, 0);
-		ofFill();
-		ofCircle(200, 200, getSharedData().scaledVol * 120.0f);
-
-		//lets draw the volume history as a graph
-//		ofBeginShape();
-//		for (unsigned int i = 0; i < entropyHistory.size(); i++){
-//			if( i == 0 ) ofVertex(i, 400);
-//
-//			ofVertex(i, 400 - entropyHistory[i] * 70);
-//
-//			if( i == entropyHistory.size() -1 ) ofVertex(i, 400);
-//		}
-//		ofEndShape(false);
-
-		ofPopMatrix();
-	ofPopStyle();
 
 	getSharedData().drawCounter++;
 }

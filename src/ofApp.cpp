@@ -44,12 +44,12 @@ void ofApp::setup(){
 	state.addState<GetReadyScreen>();
 	state.addState<KeygenScreen>();
 	state.addState<ThankyouScreen>();
-	state.changeState("scnStart");
-	//state.changeState("scnKeygen");
+	//state.changeState("scnStart");
+	state.changeState("scnKeygen");
 
     // AUDIO INPUT
 
-    state.getSharedData().fft.setup();
+//    state.getSharedData().fft.setup();
 
 	// 0 output channels,
 	// 2 input channels
@@ -79,7 +79,6 @@ void ofApp::setup(){
 
 	//soundStream.listDevices();
 	//if you want to set the device id to be different than the default
-	soundStream.setDeviceID(2); 	//note some devices are input only and some are output only
 
     // bool ofSoundStream::setup(ofBaseApp *app, int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers)
 	int ret = soundStream.setup(this, 0, 2, 44100, bufferSize, 4); //4);
@@ -115,7 +114,8 @@ void ofApp::oscLoop() {
             ofLogVerbose() << "Keys have been generated";
 			if(state.getSharedData().currentState == "scnKeygen") {
                 ofLogVerbose() << "Changing state";
-                state.changeState("scnThankyou");
+                //state.changeState("scnThankyou");
+                state.getSharedData().wasKeyGenerated = true;
 			}
 		}
 	} // while

@@ -78,7 +78,13 @@ public:
 class KeygenScreen : public itg::ofxState<SharedData>
 {
     float entropyAvailable;
+    float entropyMax;
     vector <float> entropyHistory;
+
+    ofVideoPlayer 		heart;
+
+    long lastUpdate;
+    long seconds;
 
     long entered;
     bool wasKeyGenerated;
@@ -87,13 +93,16 @@ class KeygenScreen : public itg::ofxState<SharedData>
 
     ThreadGenKey keygen;
 
-    ofxSVG svg;
+    //ofxSVG svg;
 
 //    ofxUIMovingGraph *heart;
 //    ofxUIMovingGraph *entropy;
 //    ofxUICanvas *gui;
 
 public:
+
+    void drawEntropy(string name, float x, float y, float w, float h, vector<float> &data);
+    void drawAudio(string name, float x, float y, float w, float h, vector<float> &data);
 
     void gpgKeyGenerate();
 

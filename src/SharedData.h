@@ -28,5 +28,7 @@ public:
 
     bool recording;
 
+    bool wasKeyGenerated;
+
     string currentState;
 };
